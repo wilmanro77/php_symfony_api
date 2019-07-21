@@ -1,0 +1,115 @@
+security:
+    encoders:
+        App\Entity\Users:
+            algorithm: bcrypt
+        App\Entity\CustomerUsers:
+            algorithm: bcrypt
+        App\Entity\Drivers:
+            algorithm: bcrypt
+        Symfony\Component\Security\Core\User\User: plaintext
+
+    providers:
+        users:
+            entity:
+                class: App\Entity\Users
+                property: email
+        customer_users:
+            entity:
+                class: App\Entity\CustomerUsers
+                property: email
+        drivers:
+            entity:
+                class: App\Entity\Drivers
+                property: email
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        login_app_manager:
+            pattern:  ^/user/login
+            stateless: true
+            anonymous: true
+            provider: users
+            json_login:
+                check_path: /user/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        login_app_take:
+            pattern:  ^/customer/user/login
+            stateless: true
+            anonymous: true
+            provider: customer_users
+            json_login:
+                check_path: /customer/user/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        login_app_driver:
+            pattern:  ^/driver/login
+            stateless: true
+            anonymous: true
+            provider: drivers
+            json_login:
+                check_path: /driver/login
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        register:
+            pattern:  ^/register
+            stateless: true
+            anonymous: true
+
+        app_api_take:
+            pattern:  ^/take/api
+            stateless: true
+            anonymous: false
+            provider: customer_users
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+        app_api_manager:
+            pattern:  ^/mngr/api
+            stateless: true
+            anonymous: false
+            provider: users
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+        app_api_driver:
+            pattern:  ^/drvr/api
+            stateless: true
+            anonymous: false
+            provider: drivers
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+
+
+            # activate different ways to authenticate - 
+
+            # http_basic: true
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+
+            # form_login: true
+            # https://symfony.com/doc/current/security/form_login_setup.html
+        
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+

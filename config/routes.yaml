@@ -1,0 +1,26 @@
+index:
+    path: /
+    controller: App\Controller\HomeController::index
+
+register:
+    path: /register
+    controller: App\Controller\AuthController::register
+    methods: POST
+
+api:
+    path: /api
+    controller: App\Controller\AuthController::api
+
+
+users_check:
+    path:     /user/login
+    methods:  [POST]
+
+customer_users_check:
+    path:     /customer/user/login
+    methods:  [POST]
+
+drivers_check:
+    path:     /driver/login
+    methods:  [POST]
+
